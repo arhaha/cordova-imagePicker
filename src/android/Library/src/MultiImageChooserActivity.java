@@ -200,8 +200,8 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         setupHeader();
         updateAcceptButton();
         progress = new ProgressDialog(this);
-        progress.setTitle("Processing Images");
-        progress.setMessage("This may take a few moments");
+        progress.setTitle("处理图片中");
+        progress.setMessage("可能会花费一点时间，请耐心等待");
     }
 
     @Override
@@ -216,8 +216,8 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         if (maxImages == 0 && isChecked) {
             isChecked = false;
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Maximum " + maxImageCount + " Photos");
-            builder.setMessage("You can only select " + maxImageCount + " photos at a time.");
+            builder.setTitle("最多" + maxImageCount + "张图片");
+            builder.setMessage("你每次只能选择" + maxImageCount + "张图片.");
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.cancel();
@@ -227,9 +227,9 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
             alert.show();
         } else if (isChecked) {
             fileNames.put(name, new Integer(rotation));
-            if (maxImageCount == 1) {
-                this.selectClicked(null);
-            } else {
+            //if (maxImageCount == 1) {
+            //    this.selectClicked(null);
+            //} else {
                 maxImages--;
                 ImageView imageView = (ImageView)view;
                 if (android.os.Build.VERSION.SDK_INT>=16) {
@@ -238,7 +238,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                     imageView.setAlpha(128);
                 }
                 view.setBackgroundColor(selectedColor);
-            }
+            //}
         } else {
             fileNames.remove(name);
             maxImages++;
