@@ -18,13 +18,14 @@ import android.util.Log;
 
 public class ImagePicker extends CordovaPlugin {
 	public static String TAG = "ImagePicker";
-	 
+
 	private CallbackContext callbackContext;
 	private JSONObject params;
-	 
-	public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-		 this.callbackContext = callbackContext;
-		 this.params = args.getJSONObject(0);
+
+	public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext)
+			throws JSONException {
+		this.callbackContext = callbackContext;
+		this.params = args.getJSONObject(0);
 		if (action.equals("getPictures")) {
 			Intent intent = new Intent(cordova.getActivity(), MultiImageChooserActivity.class);
 			int max = 20;
@@ -43,6 +44,37 @@ public class ImagePicker extends CordovaPlugin {
 			if (this.params.has("quality")) {
 				quality = this.params.getInt("quality");
 			}
+
+			if (this.params.has("compress") && this.params.getBoolean("compress")) {
+				int maxWidthOrHeight = 2048;
+				int compressQuality = 90;
+				int maxImageByteSize = 5 * 1024 * 1024; // 5mb
+				int minNeedcompressByteSize = 512 * 1024; // 512kb
+				boolean autoCrop = false;
+				if (this.params.has("maxWidthOrHeight")) {
+					maxWidthOrHeight = this.params.getInt("maxWidthOrHeight");
+				}
+				if (this.params.has("compressQuality")) {
+					compressQuality = this.params.getInt("compressQuality");
+				}
+				if (this.params.has("maxImageByteSize")) {
+					maxImageByteSize = this.params.getInt("maxImageByteSize");
+				}
+				if (this.params.has("minNeedcompressByteSize")) {
+					minNeedcompressByteSize = this.params.getInt("minNeedcompressByteSize");
+				}
+				if (this.params.has("autoCrop")) {
+					autoCrop = this.params.getBoolean("autoCrop");
+				}
+				intent.putExtra("COMPRESS", 1);
+				intent.putExtra("MAXWIDTHORHEIGHT", maxWidthOrHeight);
+				intent.putExtra("COMPRESSQUALITY", compressQuality);
+				intent.putExtra("MAXIMAGEBYTESIZE", maxImageByteSize);
+				intent.putExtra("MINNEEDCOMPRESSBYTESIZE", minNeedcompressByteSize);
+				intent.putExtra("AUTOCROP", autoCrop == true ? 1 : 0);
+			} else {
+				intent.putExtra("COMPRESS", 0);
+			}
 			intent.putExtra("MAX_IMAGES", max);
 			intent.putExtra("WIDTH", desiredWidth);
 			intent.putExtra("HEIGHT", desiredHeight);
@@ -53,7 +85,7 @@ public class ImagePicker extends CordovaPlugin {
 		}
 		return true;
 	}
-	
+
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (resultCode == Activity.RESULT_OK && data != null) {
 			ArrayList<String> fileNames = data.getStringArrayListExtra("MULTIPLEFILENAMES");
@@ -70,7 +102,7 @@ public class ImagePicker extends CordovaPlugin {
 		}
 	}
 
-  public void onRestoreStateForActivityResult(Bundle state, CallbackContext callbackContext) {
-    this.callbackContext = callbackContext;
-  }
+	public void onRestoreStateForActivityResult(Bundle state, CallbackContext callbackContext) {
+		this.callbackContext = callbackContext;
+	}
 }

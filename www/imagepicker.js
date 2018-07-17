@@ -30,7 +30,13 @@ ImagePicker.prototype.getPictures = function(success, fail, options) {
 		maximumImagesCount: options.maximumImagesCount ? options.maximumImagesCount : 15,
 		width: options.width ? options.width : 0,
 		height: options.height ? options.height : 0,
-		quality: options.quality ? options.quality : 100
+		quality: options.quality ? options.quality : 100,
+		compress: options.compress ? options.compress : false,
+		maxWidthOrHeight: options.maxWidthOrHeight ? options.maxWidthOrHeight : 2048,
+		compressQuality: options.compressQuality ? options.compressQuality : 100,
+		maxImageByteSize: options.maxImageByteSize ? options.maxImageByteSize :  5 * 1024 * 1024,
+		minNeedcompressByteSize: options.minNeedcompressByteSize ? options.minNeedcompressByteSize : 512 * 1024,
+		autoCrop: options.autoCrop ? options.autoCrop : false,
 	};
 
 	return cordova.exec(success, fail, "ImagePicker", "getPictures", [params]);
