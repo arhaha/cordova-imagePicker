@@ -33,8 +33,8 @@ public class ImageHelper {
         // } else if (sourceLength > this.minNeedcompressSize) {
         if (sourceLength > minNeedcompressByteSize) {
             compress(bitmap, compressQuality, sourceLength, CompressFormat.JPEG, baos);
-            outStream.write(baos.toByteArray());
         }
+        outStream.write(baos.toByteArray());
         LOG.d(LOG_TAG, "sourceLength:" + sourceLength / 1024 + "kb  compressLength:" + baos.toByteArray().length / 1024
                 + "kb");
         baos.close();
