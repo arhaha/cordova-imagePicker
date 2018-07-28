@@ -292,7 +292,7 @@ public class MultiImageChooserActivity extends Activity
         }
 
         cl = new CursorLoader(MultiImageChooserActivity.this, MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                img.toArray(new String[img.size()]), null, null, "DATE_MODIFIED DESC");
+                img.toArray(new String[img.size()]), MediaStore.MediaColumns.DATA + " NOT LIKE ?", new String[]{"%downloading"}, MediaStore.MediaColumns.DATE_MODIFIED + " DESC");
         return cl;
     }
 
