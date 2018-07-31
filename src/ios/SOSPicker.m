@@ -24,6 +24,12 @@
 	self.width = [[options objectForKey:@"width"] integerValue];
 	self.height = [[options objectForKey:@"height"] integerValue];
 	self.quality = [[options objectForKey:@"quality"] integerValue];
+    
+    self.maxWidthOrHeight = [[options objectForKey:@"maxWidthOrHeight"] integerValue];
+    self.compressQuality= [[options objectForKey:@"compressQuality"] integerValue];
+    self.maxImageByteSize = [[options objectForKey:@"maxImageByteSize"] integerValue];
+    self.minNeedcompressByteSize= [[options objectForKey:@"minNeedcompressByteSize"] integerValue];
+    self.autoCrop= [[options objectForKey:@"autoCrop"] boolValue];
 
 	// Create the an album controller and image picker
 	ELCAlbumPickerController *albumController = [[ELCAlbumPickerController alloc] init];
@@ -90,7 +96,33 @@
                 UIImage* scaledImage = [self imageByScalingNotCroppingForSize:image toSize:targetSize];
                 data = UIImageJPEGRepresentation(scaledImage, self.quality/100.0f);
             }
-            
+
+            //自定义压缩
+
+            NSLog(@"imagePicker maxWidthOrHeight:%d compressQuality:%d maxImageByteSize:%d minNeedcompressByteSize:%d",
+                self.maxWidthOrHeight, self.compressQuality, self.maxImageByteSize, self.minNeedcompressByteSize);
+
+            NSLog(@"elcImagePickerController src length:%lu", [data length]);
+            image = [UIImage imageWithData:data];
+            UIImage* scaledImage = [self imageByScalingNotCroppingForSize:image toMaxWidthOrHeight:self.maxImageByteSize];
+            data = UIImageJPEGRepresentation(scaledImage, 1.0);
+            NSLog(@"elcImagePickerController src 1.0 length:%lu", [data length]);
+            //if([data length] > self.maxImageByteSize)
+            //{
+            //    NSInteger scaleFactor = self.compressQuality;
+            //    data = UIImageJPEGRepresentation(scaledImage, scaleFactor/100.0f);
+            //    while([data length] > self.minNeedcompressByteSize && scaleFactor > 0 )
+            //    {
+            //        scaleFactor -= 5;
+            //        data = UIImageJPEGRepresentation(scaledImage, scaleFactor/100.0f);
+            //    }
+            //}
+            //else 
+            if([data length] >= self.minNeedcompressByteSize)
+            {
+                data = UIImageJPEGRepresentation(scaledImage, self.compressQuality/100.0f);
+                NSLog(@"elcImagePickerController src compress:%d length:%lu", self.compressQuality, [data length]);
+            }
             if (![data writeToFile:filePath options:NSAtomicWrite error:&err]) {
                 result = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsString:[err localizedDescription]];
                 break;
@@ -115,6 +147,37 @@
     NSArray* emptyArray = [NSArray array];
 	pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:emptyArray];
 	[self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
+}
+
+- (UIImage*)imageByScalingNotCroppingForSize:(UIImage*)sourceImage toMaxWidthOrHeight:(NSInteger)maxWidthOrHeight
+{
+    CGSize imageSize = sourceImage.size;
+    CGSize scaledSize = imageSize;
+    CGFloat scaleFactor = 0.0;
+    UIImage* newImage = sourceImage;
+
+    if(imageSize.width > imageSize.height && imageSize.width > maxWidthOrHeight)
+    {
+        scaleFactor = maxWidthOrHeight / imageSize.width;
+        scaledSize = CGSizeMake(maxWidthOrHeight, imageSize.height * scaleFactor); 
+    } 
+    else if(imageSize.width < imageSize.height && imageSize.height > maxWidthOrHeight)
+    {
+        scaleFactor = maxWidthOrHeight / imageSize.height;
+        scaledSize = CGSizeMake(imageSize.width * scaleFactor, maxWidthOrHeight);
+    }
+    else 
+    {
+        return newImage;
+    }
+    UIGraphicsBeginImageContext(scaledSize);
+    [sourceImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
+    newImage = UIGraphicsGetImageFromCurrentImageContext();
+    if (newImage == nil) {
+        NSLog(@"could not scale image");
+    }
+    UIGraphicsEndImageContext();
+    return newImage;
 }
 
 - (UIImage*)imageByScalingNotCroppingForSize:(UIImage*)anImage toSize:(CGSize)frameSize

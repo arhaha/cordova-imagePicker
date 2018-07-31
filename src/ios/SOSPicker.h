@@ -21,4 +21,10 @@
 @property (nonatomic, assign) NSInteger height;
 @property (nonatomic, assign) NSInteger quality;
 
+@property (nonatomic, assign) NSInteger maxWidthOrHeight;
+@property (nonatomic, assign) NSInteger compressQuality ;
+@property (nonatomic, assign) NSInteger maxImageByteSize ; // 5mb
+@property (nonatomic, assign) NSInteger minNeedcompressByteSize; // 512kb
+@property (nonatomic, assign) BOOL autoCrop;
+
 @end
